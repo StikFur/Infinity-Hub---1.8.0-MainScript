@@ -1,10 +1,13 @@
--- INFINITY HUB - 1.7.5 --
+-------------------------------------------------
+-- Infinity Hub 1.7.5
+-------------------------------------------------
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Player = Players.LocalPlayer
 
 -------------------------------------------------
--- CLEAN OLD GUI
+-- Clean OLD GUI
 -------------------------------------------------
 pcall(function()
     Player.PlayerGui:FindFirstChild("Infinity Hub"):Destroy()
@@ -88,7 +91,51 @@ ShowButton.MouseButton1Click:Connect(function()
 end)
 
 -------------------------------------------------
--- FUNCTION TO CREATE TOP BUTTON
+-- DRAG FUNCTION
+-------------------------------------------------
+local function MakeDraggable(gui)
+    local dragging, dragInput, dragStart, startPos
+
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = gui.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    gui.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            gui.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+-------------------------------------------------
+-- DRAGGABLE SHOWBUTTON
+-------------------------------------------------
+MakeDraggable(ShowButton)
+
+-------------------------------------------------
+-- FUNCTION TO CREATE TOP BUTTONS
 -------------------------------------------------
 local function CreateTopButton(parent, text, offsetX, callback)
     local b = Instance.new("TextButton")
@@ -113,7 +160,7 @@ local function CreateTopButton(parent, text, offsetX, callback)
 end
 
 -------------------------------------------------
--- CLOSE AND HIDE BUTTON
+-- CLOSE AND HIDE BUTTONS
 -------------------------------------------------
 CreateTopButton(Top, "X", 10, function() Gui:Destroy() end)
 CreateTopButton(Top, "–", 50, function()
@@ -148,7 +195,7 @@ local function NewPage(name)
     p.Parent = Main
 
 -------------------------------------------------
--- SCROLLABLE FRAMES INSIDE TAB
+-- SCROLLABLE FRAME INSIDE PAGE
 -------------------------------------------------
     local scroll = Instance.new("ScrollingFrame")
     scroll.Size = UDim2.new(1, -90, 1, -70)
@@ -216,7 +263,7 @@ IconTab("⚙", Settings, 120)
 IconTab("⭐", Others, 170)
 
 -------------------------------------------------
--- SETTING FUNCTION
+-- SECTION FUNCTION
 -------------------------------------------------
 local function Section(scrollParent, y, title, text)
     local f = Instance.new("Frame")
@@ -316,8 +363,6 @@ local scriptsList = {
     {"- Matrix Hub -", function() loadstring(game:HttpGet('https://raw.githubusercontent.com/StikFur/MatrixHUB/refs/heads/main/Stik'))() executionCount = executionCount + 1 print("- Matrix Hub executed!") end},
     {"- Extra Stuff -", function() loadstring(game:HttpGet("https://pastebin.com/raw/sqadnExa"))() executionCount = executionCount + 1 print("- Extra Stuff executed!") end},
     {"- XVC Hub -", function() loadstring(game:HttpGet("https://luna.xvchubontop.workers.dev/"))() executionCount = executionCount + 1 print("- XVC Hub executed!") end},
-    {"- Brick UA -", function() loadstring(game:HttpGet("https://pastebin.com/raw/sqadnExa"))() executionCount = executionCount + 1 print("- Brick UA executed!") end},
-    {"- Chat Spammer -", function() loadstring(game:HttpGet('https://raw.githubusercontent.com/k1llm3sixy/chat-spammer/refs/heads/main/chat_spammer.lua'))() executionCount = executionCount + 1 print("- Chat Spammer executed!") end},
 }
 
 for i, v in ipairs(scriptsList) do
@@ -325,15 +370,15 @@ for i, v in ipairs(scriptsList) do
 end
 
 -------------------------------------------------
--- SETTINGS TAB
+-- SETTING TAB
 -------------------------------------------------
 Section(Settings.Scroll, 0, "Controls", "Drag window anywhere\nUse left icons to switch tabs")
 AddButton(Settings.Scroll, 100, "Toggle Feature", function() print("Feature toggled!") end)
 
--- -------------------------------------------------
+-------------------------------------------------
 -- OTHERS TAB
----------------------------------------------------
+-------------------------------------------------
 Section(Others.Scroll, 0, "Miscellaneous", "Extra features can go here")
 AddButton(Others.Scroll, 100, "Do Something", function() print("Other button clicked!") end)
 
-print("✅ Infinity Hub fully loaded (1.7.5)!")
+print("✅ Infinity Hub | fully loaded (1.7.5)!")
