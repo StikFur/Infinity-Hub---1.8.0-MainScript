@@ -1,5 +1,5 @@
 -------------------------------------------------
--- Infinity Hub 1.7.5
+-- Infinity Hub 1.7.6
 -------------------------------------------------
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -334,7 +334,7 @@ end
 -------------------------------------------------
 local infoLabel = Section(Info.Scroll, 0, "Information", "")
 Section(Info.Scroll, 100, "Credits", "Developer: Stik\nYou are whitelisted, nice!")
-Section(Info.Scroll, 200, "Version", "v1.7.5")
+Section(Info.Scroll, 200, "Version", "v1.7.6")
 AddButton(Info.Scroll, 280, "Thanks for using the Hub ;3", function() print("Thank ya!") end)
 
 spawn(function()
@@ -373,12 +373,49 @@ end
 -- SETTING TAB
 -------------------------------------------------
 Section(Settings.Scroll, 0, "Controls", "Drag window anywhere\nUse left icons to switch tabs")
-AddButton(Settings.Scroll, 100, "Toggle Feature", function() print("Feature toggled!") end)
+AddButton(Settings.Scroll, 100, "Settings", function() print("Your are on settings!") end)
+
+-- Added utility buttons
+AddButton(Settings.Scroll, 160, "Rejoin Server", function()
+    local PlaceId = game.PlaceId
+    game:GetService("TeleportService"):Teleport(PlaceId, Player)
+end)
+
+AddButton(Settings.Scroll, 220, "Hop Server", function()
+    local HttpService = game:GetService("HttpService")
+    local PlaceId = game.PlaceId
+    local success, servers = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))
+    end)
+    if success and servers and servers.data then
+        for i,v in pairs(servers.data) do
+            if v.id ~= game.JobId and v.playing < v.maxPlayers then
+                game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceId, v.id, Player)
+                break
+            end
+        end
+    end
+end)
+
+AddButton(Settings.Scroll, 280, "Reload Script", function()
+    -- Destroy old GUI and re-execute the hub
+    if Player.PlayerGui:FindFirstChild("Infinity Hub") then
+        Player.PlayerGui:FindFirstChild("Infinity Hub"):Destroy()
+    end
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/StikFur/Infinity-Hub-Official---1.7.5/refs/heads/main/St!kHub"))()
+end)
+
+AddButton(Settings.Scroll, 340, "Destroy GUI", function()
+    if Gui then
+        Gui:Destroy()
+    end
+end)
+
 
 -------------------------------------------------
 -- OTHERS TAB
 -------------------------------------------------
 Section(Others.Scroll, 0, "Miscellaneous", "Extra features can go here")
-AddButton(Others.Scroll, 100, "Do Something", function() print("Other button clicked!") end)
+AddButton(Others.Scroll, 100, "Do Something", function() print("Button Clicked!!") end)
 
-print("✅ Infinity Hub | fully loaded (1.7.5)!")
+print("✅ Infinity Hub | fully loaded (1.7.6)!")
