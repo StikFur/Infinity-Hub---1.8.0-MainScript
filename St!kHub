@@ -1,5 +1,5 @@
 -------------------------------------------------
--- Infinity Hub 1.7.5
+-- Infinity Hub 1.7.6
 -------------------------------------------------
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -334,7 +334,7 @@ end
 -------------------------------------------------
 local infoLabel = Section(Info.Scroll, 0, "Information", "")
 Section(Info.Scroll, 100, "Credits", "Developer: Stik\nYou are whitelisted, nice!")
-Section(Info.Scroll, 200, "Version", "v1.7.5")
+Section(Info.Scroll, 200, "Version", "v1.7.6")
 AddButton(Info.Scroll, 280, "Thanks for using the Hub ;3", function() print("Thank ya!") end)
 
 spawn(function()
@@ -380,47 +380,47 @@ end)
 
 -- Rejoin Server Button
 AddButton(Settings.Scroll, 160, "Rejoin Server", function()
-    PlayClickSound()
-    local PlaceId = game.PlaceId
     local TeleportService = game:GetService("TeleportService")
-    
-    -- Teleport and reload GUI after respawn
+    local Player = game.Players.LocalPlayer
+    local PlaceId = game.PlaceId
+
+    -- Queue your hub script before teleport
+    if queue_on_teleport then
+        queue_on_teleport([[loadstring(game:HttpGet("https://pastebin.com/raw/yourhubscript"))()]])
+    elseif syn and syn.queue_on_teleport then
+        syn.queue_on_teleport([[loadstring(game:HttpGet("https://pastebin.com/raw/yourhubscript"))()]])
+    end
+
+    -- Teleport
     TeleportService:Teleport(PlaceId, Player)
 end)
 
 -- Hop Server Button
 AddButton(Settings.Scroll, 220, "Hop Server", function()
-    PlayClickSound()
     local HttpService = game:GetService("HttpService")
+    local TeleportService = game:GetService("TeleportService")
+    local Player = game.Players.LocalPlayer
     local PlaceId = game.PlaceId
+
+    -- Queue hub script for next server
+    if queue_on_teleport then
+        queue_on_teleport([[loadstring(game:HttpGet("https://raw.githubusercontent.com/StikFur/Infinity---Hub-Version-1.7.6/refs/heads/main/St!kHub"))()]])
+    elseif syn and syn.queue_on_teleport then
+        syn.queue_on_teleport([[loadstring(game:HttpGet("https://raw.githubusercontent.com/StikFur/Infinity---Hub-Version-1.7.6/refs/heads/main/St!kHub"))()]])
+    end
+
+    -- Fetch available servers
     local success, servers = pcall(function()
         return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))
     end)
+
     if success and servers and servers.data then
         for i,v in pairs(servers.data) do
             if v.id ~= game.JobId and v.playing < v.maxPlayers then
-                game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceId, v.id, Player)
+                TeleportService:TeleportToPlaceInstance(PlaceId, v.id, Player)
                 break
             end
         end
-    end
-end)
-
--- Reload Script Button
-AddButton(Settings.Scroll, 280, "Reload Script", function()
-    PlayClickSound()
-    -- Destroy old GUI and re-execute the hub
-    if Player.PlayerGui:FindFirstChild("Infinity Hub") then
-        Player.PlayerGui:FindFirstChild("Infinity Hub"):Destroy()
-    end
-     loadstring(game:HttpGet("https://raw.githubusercontent.com/StikFur/Infinity-Hub-Official---1.7.6/refs/heads/main/St!kHub"))()
-end)
-
--- Destroy GUI Button
-AddButton(Settings.Scroll, 340, "Destroy GUI", function()
-    PlayClickSound()
-    if Gui then
-        Gui:Destroy()
     end
 end)
 
