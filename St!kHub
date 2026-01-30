@@ -363,6 +363,8 @@ local scriptsList = {
     {"- Matrix Hub -", function() loadstring(game:HttpGet('https://raw.githubusercontent.com/StikFur/MatrixHUB/refs/heads/main/Stik'))() executionCount = executionCount + 1 print("- Matrix Hub executed!") end},
     {"- Extra Stuff -", function() loadstring(game:HttpGet("https://pastebin.com/raw/sqadnExa"))() executionCount = executionCount + 1 print("- Extra Stuff executed!") end},
     {"- XVC Hub -", function() loadstring(game:HttpGet("https://luna.xvchubontop.workers.dev/"))() executionCount = executionCount + 1 print("- XVC Hub executed!") end},
+    {"- Brick UA -", function() loadstring(game:HttpGet("https://pastebin.com/raw/ZwCXk9mb"))() executionCount = executionCount + 1 print("- Brick UA executed!") end},
+    {"- Chat Spammer -", function() loadstring(game:HttpGet('https://raw.githubusercontent.com/k1llm3sixy/chat-spammer/refs/heads/main/chat_spammer.lua'))() executionCount = executionCount + 1 print("- Spammer executed!") end},
 }
 
 for i, v in ipairs(scriptsList) do
