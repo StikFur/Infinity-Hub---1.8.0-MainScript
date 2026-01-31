@@ -1,10 +1,26 @@
 -------------------------------------------------
--- Infinity Hub 1.7.6
+-- Infinity Hub 1.7.7
 -------------------------------------------------
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Player = Players.LocalPlayer
+
+-- Groups you want to show titles for
+local groups = {
+    [5345749]    = {"Chosen One Enthusiasts Club", Color3.fromRGB(0,255,0)},
+    [35956339]   = {"Clementiuilo", Color3.fromRGB(108,77,59)},
+    [33203248]   = {"Roblox's Rejects", Color3.fromRGB(177,125,82)},
+    [35155850]   = {"Unchainable Mercy", Color3.fromRGB(108,77,59)},
+    [35985581]   = {"Genesis", Color3.fromRGB(82,138,174)},
+    [33258647]   = {"Union of Mirrland Communist States", Color3.fromRGB(120,0,0)},
+    [34915496]   = {"dauens silly", Color3.fromRGB(0,120,0)},
+    [34348476]   = {"Frigid's silly fan club", Color3.fromRGB(0,0,200)},
+    [34838919]   = {"The Eternal Flame of TCO", Color3.fromRGB(255,255,0)},
+    [35986983]   = {"Realm ???", Color3.fromRGB(42,73,199)},
+    [286855251]  = {"| The Mafia |", Color3.fromRGB(139,0,0)}
+}
+
 
 -------------------------------------------------
 -- Clean OLD GUI
@@ -432,4 +448,127 @@ end)
 Section(Others.Scroll, 0, "Miscellaneous", "Extra features can go here")
 AddButton(Others.Scroll, 100, "Do Something", function() print("Button Clicked!!") end)
 
-print("✅ Infinity Hub | fully loaded (1.7.6)!")
+-------------------------------------------------
+-- GROUP TITLES SYSTEM
+-------------------------------------------------
+local groupTitles = {}
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local Player = Players.LocalPlayer
+
+local function getGroupInfo(plr)
+    for groupId, data in pairs(groups) do
+        local success, role = pcall(function() return plr:GetRoleInGroup(groupId) end)
+        if success and role and plr:IsInGroup(groupId) then
+            return {Name = data[1], Color = data[2], Rank = role}
+        end
+    end
+    return nil
+end
+
+local function isVisible(targetCharacter, plr)
+    if plr == Player then return true end
+    if not targetCharacter or not targetCharacter:FindFirstChild("Head") then return false end
+    local head = targetCharacter.Head
+    local origin = Camera.CFrame.Position
+    local direction = head.Position - origin
+
+    local rayParams = RaycastParams.new()
+    rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+    rayParams.FilterDescendantsInstances = {Player.Character or workspace}
+
+    local result = workspace:Raycast(origin, direction, rayParams)
+    if result and result.Instance then
+        return result.Instance:IsDescendantOf(targetCharacter)
+    end
+    return false
+end
+
+local function createOrUpdateBillboard(plr)
+    task.spawn(function()
+        local character = plr.Character or plr.CharacterAdded:Wait()
+        local head = character:WaitForChild("Head", 5)
+        if not head then return end
+
+        local info = getGroupInfo(plr)
+        if not info then return end
+
+        -- Remove old GUI if it exists
+        local oldGui = head:FindFirstChild("GroupTitle")
+        if oldGui then oldGui:Destroy() end
+
+        -- Create Billboard
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "GroupTitle"
+        gui.Adornee = head
+        gui.Size = UDim2.new(0, 400, 0, 120)
+        gui.AlwaysOnTop = false
+        gui.Parent = head
+
+        -- Calculate offset above the name tag
+        local defaultOffsetY = 3.5 -- normal
+        local extraOffset = 0.6    -- extra space to not overlap
+        gui.StudsOffset = Vector3.new(0, defaultOffsetY + extraOffset, 0)
+
+        -- Group Name Label
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Size = UDim2.new(1,0,0.6,0)
+        nameLabel.Position = UDim2.new(0,0,0,0)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextSize = 36
+        nameLabel.Text = info.Name
+        nameLabel.TextColor3 = info.Color
+        nameLabel.TextStrokeTransparency = 0
+        nameLabel.Parent = gui
+
+        -- Rank Label
+        local rankLabel = Instance.new("TextLabel")
+        rankLabel.Size = UDim2.new(1,0,0.4,0)
+        rankLabel.Position = UDim2.new(0,0,0.6,4)
+        rankLabel.BackgroundTransparency = 1
+        rankLabel.Font = Enum.Font.GothamSemibold
+        rankLabel.TextSize = 28
+        rankLabel.Text = info.Rank
+        rankLabel.TextColor3 = info.Color
+        rankLabel.TextStrokeTransparency = 0
+        rankLabel.Parent = gui
+
+        -- Store reference
+        groupTitles[plr] = gui
+
+        -- Hide if player not visible through walls
+        RunService.RenderStepped:Connect(function()
+            if gui and gui.Parent then
+                gui.Enabled = isVisible(character, plr)
+            end
+        end)
+    end)
+end
+
+local function connectPlayer(plr)
+    createOrUpdateBillboard(plr)
+    plr.CharacterAdded:Connect(function()
+        createOrUpdateBillboard(plr)
+    end)
+end
+
+-- Remove old billboards
+for _, plr in pairs(Players:GetPlayers()) do
+    if plr.Character then
+        local head = plr.Character:FindFirstChild("Head")
+        if head then
+            local oldGui = head:FindFirstChild("GroupTitle")
+            if oldGui then oldGui:Destroy() end
+        end
+    end
+end
+
+-- Connect all players
+for _, plr in pairs(Players:GetPlayers()) do
+    connectPlayer(plr)
+end
+Players.PlayerAdded:Connect(connectPlayer)
+
+print("✅ Infinity Hub | fully loaded (1.7.7)!")
