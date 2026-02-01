@@ -85,7 +85,6 @@ glowShow.Color = Color3.fromRGB(170,120,255)
 glowShow.Transparency = 0.7
 
 local function ToggleMain()
-    PlayClick(ShowButton)
     Main.Visible = true
     Hidden = false
     ShowButton.Visible = false
@@ -150,7 +149,6 @@ local function CreateTopButton(parent, text, offsetX, callback)
     b.MouseEnter:Connect(function() glow.Transparency = 0 end)
     b.MouseLeave:Connect(function() glow.Transparency = 0.7 end)
     b.MouseButton1Click:Connect(function()
-        PlayClick(b)
         callback()
     end)
 end
@@ -236,7 +234,6 @@ local function IconTab(icon,pageTable,y)
     end)
 
     b.MouseButton1Click:Connect(function()
-        PlayClick(b)
         if CurrentPage then
             CurrentPage.Page.Visible = false
         end
@@ -308,7 +305,6 @@ local function AddButton(scrollParent,y,text,callback)
     b.MouseEnter:Connect(function() glow.Transparency = 0 end)
     b.MouseLeave:Connect(function() glow.Transparency = 0.7 end)
     b.MouseButton1Click:Connect(function()
-        PlayClick(b)
         if callback then callback() end
     end)
 
@@ -362,7 +358,6 @@ end
 -------------------------------------------------
 Section(Settings.Scroll, 0, "Controls", "Drag window anywhere\nUse left icons to switch tabs")
 AddButton(Settings.Scroll, 100, "Settings", function() 
-    PlayClickSound()
     print("You are on settings!") 
 end)
 
@@ -428,8 +423,7 @@ AddButton(Others.Scroll,160,"Reset Hub Position",function()
 end)
 
 -------------------------------------------------
--- GROUP TITLE SYSTEM (EXECUTOR SAFE)
--- Works on: Delta, Codex, Xeno
+-- GROUP TITLE SYSTEM
 -------------------------------------------------
 
 local Players = game:GetService("Players")
